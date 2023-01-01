@@ -18,6 +18,10 @@ def get_pressure():
     return PressureSensor(0x77).get_pressure()
 
 
+def get_pressure_temp():
+    return PressureSensor(0x77).get_temp()
+
+
 app = Flask(__name__)
 
 
@@ -26,7 +30,8 @@ def index():
     return jsonify({
 	"dt": dt.datetime.now(),
 	"sensors": {
-		"t": [{"value": get_temperature(), "type": "ds18b20", "place": "out"}],
+		"t": [{"value": get_temperature(), "type": "ds18b20", "place": "out"},
+			{"value": get_pressure_temp(), "type": "bmp180", "place": "in"}],
 		"p": [{"value": get_pressure(), "type": "bmp180"}]
 	}
 })
