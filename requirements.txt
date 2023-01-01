@@ -1,0 +1,8 @@
+# backend
+flask
+gunicorn
+
+# net
+requests
+
+
