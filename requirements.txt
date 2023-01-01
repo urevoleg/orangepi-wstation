@@ -1,0 +1,10 @@
+# backend
+flask
+gunicorn
+
+# net
+requests
+
+# sensors
+w1thermsensor
+smbus2
