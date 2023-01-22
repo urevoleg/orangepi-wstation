@@ -1,10 +1,11 @@
 # backend
 flask
+flask-appbuilder
 gunicorn
 
 # net
 requests
 
-# sensors
-w1thermsensor
-smbus2
+# sensors for orangepi pc
+#w1thermsensor
+#smbus2
