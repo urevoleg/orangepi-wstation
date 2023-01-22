@@ -2,7 +2,7 @@ from pprint import pprint
 import requests
 
 
-class Sensor:
+class SensorReader:
     def __init__(self, host, port, path):
         self.host = host
         self.port = port
@@ -20,9 +20,6 @@ class Sensor:
 
 
 if __name__ == '__main__':
-    host = '192.168.55.27'
-    url = f"http://{host}/sensors"
-    response = requests.get(url=url)
-
-    pprint(response.json())
+    response = SensorReader(**{'host': '192.168.55.27', 'port': 80, 'path': 'sensors'}).read()
+    pprint(response)
 

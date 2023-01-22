@@ -1,20 +1,65 @@
 import os
-from flask import Flask
-from flask_appbuilder import SQLA, AppBuilder
+import datetime as dt
+import json
+
+
+from flask import Flask, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from flask_admin import Admin
+
+from flask_apscheduler import APScheduler
+
+from sensor_reader.reader import SensorReader
+
+from config import Config
+
 
 # init Flask
 app = Flask(__name__)
+app.config.from_object(Config)
 
-# Basic config with security for forms and session cookie
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.db')
-app.config['CSRF_ENABLED'] = True
-app.config['SECRET_KEY'] = 'thisismyscretkey'
+db = SQLAlchemy(app)
+admin = Admin(app, name='Admin', template_mode='bootstrap3')
 
-# Init SQLAlchemy
-db = SQLA(app)
-# Init F.A.B.
-appbuilder = AppBuilder(app, db.session)
 
-# Run the development server
-app.run(host='0.0.0.0', port=8080, debug=True)
+class Sensor(db.Model):
+    __tablename__ = 'stg.sensors'
+
+    id = db.Column(db.Integer, primary_key=True, index=True)
+    category = db.Column(db.String, nullable=False)
+    json_data = db.Column(db.TEXT)
+    loaded_at = db.Column(db.DATETIME, default=dt.datetime.now)
+
+
+from views import SensorView
+admin.add_view(SensorView(Sensor, db.session))
+
+
+@app.route('/sensors')
+def sensors():
+    rows = db.session.query(Sensor.category, Sensor.loaded_at, Sensor.json_data) \
+        .order_by(Sensor.loaded_at.desc()) \
+        .limit(10)
+    return jsonify([{**row} for row in rows])
+
+
+scheduler = APScheduler()
+
+
+@scheduler.task(trigger='interval', id="read_sensor", seconds=30)
+def read_sensor():
+    from_sensor = SensorReader(**{'host': '192.168.55.27', 'port': 80, 'path': 'sensors'}).read()
+    obj = Sensor(
+        category=from_sensor.get('name'),
+        json_data=json.dumps(from_sensor.get('data'))
+    )
+    db.session.add(obj)
+    db.session.commit()
+
+
+scheduler.init_app(app)
+scheduler.start()
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=Config.DEBUG)

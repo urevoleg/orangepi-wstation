@@ -1,6 +1,8 @@
 # backend
 flask
-flask-appbuilder
+#flask-appbuilder
+flask_apscheduler
+flask_admin
 gunicorn
 
 # net

@@ -1,1 +1,1 @@
-from .reader import Sensor
+from .reader import SensorReader
