@@ -54,7 +54,7 @@ def read_sensor():
         json_data=json.dumps(from_sensor.get('data'))
     )
     db.session.add(obj)
-    db.session.commit()
+    #db.session.commit()
 
 
 scheduler.init_app(app)
