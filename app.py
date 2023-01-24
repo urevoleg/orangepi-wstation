@@ -54,7 +54,8 @@ def read_sensor():
         json_data=json.dumps(from_sensor.get('data'))
     )
     db.session.add(obj)
-    #db.session.commit()
+    db.session.commit()
+    print("scheduler.task(trigger='interval', id='read_sensor', seconds=30)")
 
 
 scheduler.init_app(app)
