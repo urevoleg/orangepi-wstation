@@ -30,6 +30,9 @@ class Sensor(db.Model):
     json_data = db.Column(db.TEXT)
     loaded_at = db.Column(db.DateTime, default=dt.datetime.now)
 
+    def __repr__(self):
+        return f"Sensor(id={self.id}, category={self.category}, json_data={self.json_data}, loaded_at={self.loaded_at})"
+
 
 from views import SensorView
 admin.add_view(SensorView(Sensor, db.session))
@@ -43,7 +46,7 @@ def sensors():
     return jsonify([{**row} for row in rows])
 
 
-scheduler = APScheduler()
+scheduler = APScheduler(app=app)
 
 
 @scheduler.task(trigger='interval', id="read_sensor", seconds=30)
@@ -55,14 +58,14 @@ def read_sensor():
     )
     db.session.add(obj)
     db.session.commit()
-    print("scheduler.task(trigger='interval', id='read_sensor', seconds=30)")
-
-
-scheduler.init_app(app)
-scheduler.start()
+    app.logger.debug(obj)
+    #print("scheduler.task(trigger='interval', id='read_sensor', seconds=30)")
 
 
 if __name__ == '__main__':
     #db.drop_all()
     db.create_all()
-    app.run(host='0.0.0.0', port=5000, debug=Config.DEBUG)
+    scheduler.start()
+    # use_reloader=False - чтобы scheduler не выполнял дважды job
+    # https://stackoverflow.com/questions/14874782/apscheduler-in-flask-executes-twice
+    app.run(host='0.0.0.0', use_reloader=False, port=5000, debug=Config.DEBUG)

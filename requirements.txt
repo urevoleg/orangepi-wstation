@@ -9,6 +9,10 @@ gunicorn
 psycopg2-binary
 flask-sqlalchemy
 
+# jobs
+rq
+rq-scheduler
+
 # net
 requests
 
