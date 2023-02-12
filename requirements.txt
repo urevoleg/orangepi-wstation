@@ -4,6 +4,7 @@ flask
 flask_apscheduler
 flask_admin
 gunicorn
+python-dotenv
 
 #db
 psycopg2-binary

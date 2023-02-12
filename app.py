@@ -64,7 +64,8 @@ def read_sensor():
 
 if __name__ == '__main__':
     #db.drop_all()
-    db.create_all()
+    with app.app_context():
+        db.create_all()
     scheduler.start()
     # use_reloader=False - чтобы scheduler не выполнял дважды job
     # https://stackoverflow.com/questions/14874782/apscheduler-in-flask-executes-twice
