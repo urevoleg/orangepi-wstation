@@ -12,8 +12,7 @@ class SensorReader:
         return f"http://{self.host}:{self.port}/{self.path}"
 
     def read(self):
-        host = '192.168.55.27'
-        url = f"http://{host}/sensors"
+        url = self._create_url()
         response = requests.get(url=url)
         response.raise_for_status()
         return response.json()
