@@ -11,7 +11,7 @@ from flask_apscheduler import APScheduler
 
 from sensor_reader.reader import SensorReader
 
-from config import Config
+from config import Config, SensorsConfig
 
 
 # init Flask
@@ -51,15 +51,16 @@ scheduler = APScheduler(app=app)
 
 @scheduler.task(trigger='interval', id="read_sensor", seconds=30)
 def read_sensor():
-    from_sensor = SensorReader(**{'host': '192.168.55.27', 'port': 80, 'path': 'sensors'}).read()
-    obj = Sensor(
-        category=from_sensor.get('name'),
-        json_data=json.dumps(from_sensor.get('data'))
-    )
-    with app.app_context():
-        db.session.add(obj)
-        db.session.commit()
-        app.logger.debug(obj)
+    for sensor_creds in SensorsConfig.list():
+        from_sensor = SensorReader(**sensor_creds).read()
+        obj = Sensor(
+            category=from_sensor.get('name'),
+            json_data=json.dumps(from_sensor.get('data'))
+        )
+        with app.app_context():
+            db.session.add(obj)
+            db.session.commit()
+            app.logger.debug(obj)
     #print("scheduler.task(trigger='interval', id='read_sensor', seconds=30)")
 
 

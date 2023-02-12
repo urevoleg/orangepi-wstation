@@ -19,3 +19,13 @@ class Config(object):
     SCHEDULER_JOBSTORES = {"default": SQLAlchemyJobStore(url=SQLALCHEMY_DATABASE_URI)}
     SCHEDULER_EXECUTORS = {"default": {"type": "threadpool", "max_workers": 2}}
     SCHEDULER_JOB_DEFAULTS = {"coalesce": False, "max_instances": 3}
+
+
+class SensorsConfig:
+
+    @staticmethod
+    def list():
+        return [
+            {'host': '192.168.55.27', 'port': 80, 'path': 'sensors'},
+            {'host': '192.168.55.124', 'port': 80, 'path': 'sensors'}
+        ]
