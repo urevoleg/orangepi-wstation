@@ -1,7 +1,7 @@
 import time
 import datetime as dt
 
-from app import app
+from __init__ import app
 
 
 def example(dt_now):
