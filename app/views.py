@@ -2,6 +2,7 @@ import json
 
 import plotly
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 from collections import defaultdict
 
@@ -46,12 +47,38 @@ class HomeView(AdminIndexView):
                     for k, v in row.items():
                         data[k] += [v]
 
-        fig = go.Figure(data=[
+        # Create figure with secondary y-axis
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+        # Add traces
+        fig.add_trace(
             go.Scatter(x=data['loaded_at'], y=data['t'],
                        mode='lines+markers',
                        line=dict(width=0.75),
                        marker=dict(size=5),
-                       name='Temperature')])
-        fig.update_layout(template='plotly_white')
+                       name='Temperature'),
+            secondary_y=False,
+        )
+
+        fig.add_trace(
+            go.Scatter(x=data['loaded_at'], y=data['p'],
+                       mode='lines+markers',
+                       line=dict(width=0.75),
+                       marker=dict(size=5),
+                       name='Pressure'),
+            secondary_y=True,
+        )
+
+        # Set x-axis title
+        fig.update_xaxes(title_text="Дата")
+
+        # Set y-axes titles
+        fig.update_yaxes(title_text="<b>Temperature</b>", secondary_y=False)
+        fig.update_yaxes(title_text="<b>Pressure</b>", secondary_y=True)
+        # Add figure title
+        fig.update_layout(template='plotly_white',
+                          title='Sensor data',
+                          showlegend=True)
+
         graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
         return self.render(template='admin/index.html', graphJSON=graphJSON)
