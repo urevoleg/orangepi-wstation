@@ -1,0 +1,8 @@
+{% extends 'admin/master.html' %}
+
+{% block content %}
+    <script type='text/javascript'>
+      var graphs = {{graphJSON | safe}};
+      Plotly.plot('chart',graphs,{});
+    </script>
+{% endblock %}
