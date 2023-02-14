@@ -63,14 +63,15 @@ def read_sensor():
             db.session.add(obj)
             db.session.commit()
             app.logger.debug(obj)
-    #print("scheduler.task(trigger='interval', id='read_sensor', seconds=30)")
+
+
+with app.app_context():
+    db.create_all()
+scheduler.start()
 
 
 if __name__ == '__main__':
-    #db.drop_all()
-    with app.app_context():
-        db.create_all()
-    scheduler.start()
+
     # use_reloader=False - чтобы scheduler не выполнял дважды job
     # https://stackoverflow.com/questions/14874782/apscheduler-in-flask-executes-twice
     app.run(host='0.0.0.0', use_reloader=False, port=5000, debug=Config.DEBUG)
