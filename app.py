@@ -32,43 +32,11 @@ class Sensor(db.Model):
     def __repr__(self):
         return f"Sensor(id={self.id}, category={self.category}, json_data={self.json_data}, loaded_at={self.loaded_at})"
 
-import json
 
-import plotly
-import plotly.express as px
-
-import pandas as pd
-
-from flask_admin import AdminIndexView, expose
 import views
 
 
-class HomeView(AdminIndexView):
-    @expose('/')
-    def index(self):
-        with app.app_context():
-            with db.engine.connect() as conn:
-                stmt = """with raw as (select loaded_at, 
-                                                cast(json_data::json->> 'l' as int) as l, 
-                                                0.01 * cast(json_data::json->> 't' as int) as t, 
-                                                0.1 * cast(json_data::json->> 'p' as int) as p
-                                        from sensors
-                                        where loaded_at > now() - interval '6h'
-                                        and category = 'weather-out'
-                                        order by loaded_at desc)
-                            select *
-                            from raw
-                            order by loaded_at;"""
-                res = conn.execute(stmt)
-                df = pd.DataFrame(res.fetchall())
-
-        fig = px.line(df, x='loaded_at', y='t')
-        fig.update_layout(template='plotly_white')
-        graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-        return self.render('admin/index.html', graphJSON=graphJSON, title='Sensors Data')
-
-
-admin = Admin(app, name='Admin', index_view=HomeView(), template_mode='bootstrap4')
+admin = Admin(app, name='Admin', template_mode='bootstrap4')
 admin.add_view(views.SensorView(Sensor, db.session))
 
 
