@@ -32,7 +32,7 @@ class HomeView(AdminIndexView):
                 stmt = """with raw as (select date_trunc('minute', loaded_at) as loaded_at, 
                                                 avg(cast(json_data::json->> 'l' as int)) as l, 
                                                 avg(0.01 * cast(json_data::json->> 't' as int)) as t, 
-                                                avg(0.1 * cast(json_data::json->> 'p' as int)) as p
+                                                round(avg(avg(0.1 * cast(json_data::json->> 'p' as int))) over(order by date_trunc('minute', loaded_at) range between '5min' preceding and current row), 2) as p
                                         from sensors
                                         where loaded_at > now() - interval '12h'
                                         and category = 'weather-out'
