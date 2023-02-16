@@ -29,14 +29,15 @@ class HomeView(AdminIndexView):
     def index(self):
         with app.app_context():
             with db.engine.connect() as conn:
-                stmt = """with raw as (select loaded_at, 
-                                                cast(json_data::json->> 'l' as int) as l, 
-                                                0.01 * cast(json_data::json->> 't' as int) as t, 
-                                                0.1 * cast(json_data::json->> 'p' as int) as p
+                stmt = """with raw as (select date_trunc('minute', loaded_at) as loaded_at, 
+                                                avg(cast(json_data::json->> 'l' as int)) as l, 
+                                                avg(0.01 * cast(json_data::json->> 't' as int)) as t, 
+                                                avg(0.1 * cast(json_data::json->> 'p' as int)) as p
                                         from sensors
-                                        where loaded_at > now() - interval '6h'
+                                        where loaded_at > now() - interval '12h'
                                         and category = 'weather-out'
-                                        order by loaded_at desc)
+                                        group by 1
+                                        order by loaded_at)
                             select *
                             from raw
                             order by loaded_at;"""
@@ -46,7 +47,48 @@ class HomeView(AdminIndexView):
                 for row in res.fetchall():
                     for k, v in row.items():
                         data[k] += [v]
+        # indicators
+        # Create figure with secondary y-axis
+        fig_indicators = go.Figure()
 
+        # Add traces
+        fig_indicators.add_trace(
+            go.Indicator(
+                value=data['t'][-1],
+                title={"text": "<b>Temperature</b>"},
+                domain={'row': 0, 'column': 0},
+                number={'font': {'size': 48}, "suffix": "°"}
+            ),
+        )
+
+        fig_indicators.add_trace(
+            go.Indicator(
+                mode="number+delta",
+                title={"text": "<b>Pressure</b>"},
+                value=sum(data['p'][-5:]) / 5,
+                delta={'reference': sum(data['p'][-65:-60])/5, 'relative': False, 'valueformat': '.2f'},
+                domain={'row': 0, 'column': 1},
+                number={'font': {'size': 48}, "suffix": "mmHg"}
+            )
+        )
+
+        fig_indicators.add_trace(
+            go.Indicator(
+                mode="number",
+                title={"text": "<b>Light</b>"},
+                value=data['l'][-1],
+                domain={'row': 0, 'column': 2},
+                number={'font': {'size': 48}, "suffix": "lx"}
+            ),
+        )
+
+        # Add figure title
+        fig_indicators.update_layout(template='plotly_white',
+                                     grid={'rows': 1, 'columns': 3, 'pattern': "independent"},
+                                     height=180)
+        indicatorJSON = json.dumps(fig_indicators, cls=plotly.utils.PlotlyJSONEncoder)
+
+        # plots
         # Create figure with secondary y-axis
         fig = make_subplots(specs=[[{"secondary_y": True}]])
 
@@ -78,7 +120,10 @@ class HomeView(AdminIndexView):
         # Add figure title
         fig.update_layout(template='plotly_white',
                           title='Sensor data',
-                          showlegend=True)
+                          showlegend=True,
+                          height=720)
 
         graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-        return self.render(template='admin/index.html', graphJSON=graphJSON)
+        return self.render(template='admin/index.html',
+                           graphJSON=graphJSON,
+                           indicatorJSON=indicatorJSON)

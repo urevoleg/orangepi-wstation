@@ -15,10 +15,16 @@
 
 {% block body %}
     <div class="row">
+    <div id="indicator" class="chart"></div>
+    </div>
+    <div class="row">
     <div id="chart" class="chart"></div>
     </div>
     <script type='text/javascript'>
-      var graphs = {{graphJSON | safe}};
-      Plotly.plot('chart',graphs,{});
+      var graphs1 = {{graphJSON | safe}};
+      Plotly.plot('chart',graphs1,{});
+
+      var graphs2 = {{indicatorJSON | safe}};
+      Plotly.plot('indicator',graphs2,{});
     </script>
 {% endblock %}
