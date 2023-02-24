@@ -1,0 +1,13 @@
+[Unit]
+Description=Collect sensor data and Narodmon Sender
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/root/
+User=userad
+ExecStart=/root/projects/orangepi-wstation/sensor-app.sh start
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target
