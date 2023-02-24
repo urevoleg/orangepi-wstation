@@ -5,7 +5,8 @@ After=multi-user.target
 [Service]
 WorkingDirectory=/root/
 User=root
-ExecStart=/root/projects/orangepi-wstation/sensor-app.sh start
+#ExecStart=/root/projects/orangepi-wstation/sensor-app.sh start
+ExecStart=/root/projects/orangepi-wstation/venv/bin/python /root/projects/orangepi-wstation/app.py
 Restart=always
 RestartSec=1
 
