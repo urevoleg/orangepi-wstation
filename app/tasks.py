@@ -1,33 +1,67 @@
-import time
-import datetime as dt
+import json
+import os
 
-from __init__ import app
+from flask_apscheduler import APScheduler
+
+from .sensor_reader.reader import SensorReader
+from .narodmon_sender.sender import Sender
+
+from app import app, db
+from app import models, SensorsConfig
 
 
-def example(dt_now):
-    """
-    :param seconds:
-    :return:
-    """
-    app.logger.info('Starting task')
-    app.logger.debug(dt_now)
-    app.logger.info('Task completed')
+scheduler = APScheduler(app=app)
+
+
+@scheduler.task(trigger='interval', id="read_sensor", seconds=30)
+def read_sensor():
+    for sensor_creds in SensorsConfig.list():
+        from_sensor = SensorReader(**sensor_creds).read()
+        obj = models.Sensor(
+            category=from_sensor.get('name'),
+            json_data=json.dumps(from_sensor.get('data'))
+        )
+        with app.app_context():
+            db.session.add(obj)
+            db.session.commit()
+            app.logger.debug(obj)
+
+
+@scheduler.task(trigger='interval', id="narodmon_send", minutes=5)
+def narodmon_send():
+    with app.app_context():
+        with db.engine.connect() as conn:
+            stmt = """with out_ as (select 1 AS KEY,
+                                            round(avg(cast(json_data::json->> 'l' as int)), 0) as l, 
+                                            round(avg(0.01 * cast(json_data::json->> 't' as int)), 2) as t_out, 
+                                            round(avg(0.1 * cast(json_data::json->> 'p' as int)), 1) as p
+                                    from sensors
+                                    where loaded_at > now() - interval '5min'
+                                    and category = 'weather-out'),
+                        in_ AS (select 1 AS KEY,
+                                            round(avg(cast(json_data::json->> 'gas' as int)), 0) as gas, 
+                                            round(avg(0.01 * cast(json_data::json->> 't' as int)), 2) as t_in 
+                                    from sensors
+                                    where loaded_at > now() - interval '5min'
+                                    and category = 'weather-in')
+                        select *
+                        from out_
+                        JOIN in_
+                        USING (key);"""
+            res = conn.execute(stmt)
+
+            data = {'ID': os.getenv('NARODMON_DEVICE_MAC')}
+            for row in res.fetchall():
+                for k, v in row.items():
+                    if k != 'key':
+                        data[Sender._name_sensor_mappings(k)] = float(str(v))
+            app.logger.debug(data)
+            sender = Sender(host=os.getenv('NARODMON_HOST'),
+                            port=os.getenv('NARODMON_PORT'),
+                            post_uri=os.getenv('NARODMON_POST_URI'))
+            response = sender.send(data=data)
+            app.logger.debug((response, response.headers))
 
 
 if __name__ == '__main__':
-    import rq
-    from redis import Redis
-    from rq_scheduler import Scheduler
-    # для корректной работы надо запустить rqscheduler -i 5
-
-    q = rq.Queue('wstation', connection=Redis.from_url('redis://'))
-    scheduler = Scheduler('wstation', connection=Redis.from_url('redis://'))
-
-    scheduler.schedule(
-        scheduled_time=dt.datetime.utcnow(),
-        func='tasks.example',
-        kwargs={'dt_now': dt.datetime.now()},
-        interval=10,
-        repeat=5,
-    )
-
+    narodmon_send()
