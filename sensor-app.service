@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 WorkingDirectory=/root/
-User=userad
+User=root
 ExecStart=/root/projects/orangepi-wstation/sensor-app.sh start
 Restart=always
 RestartSec=1
