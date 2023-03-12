@@ -32,7 +32,7 @@ def narodmon_send():
     with app.app_context():
         with db.engine.connect() as conn:
             stmt = """with out_ as (select 1 AS KEY,
-                                            round(avg(cast(json_data::json->> 'l' as int)), 0) as l, 
+                                            round(avg(cast(json_data::json->> 'l' as float)), 0) as l, 
                                             round(avg(0.01 * cast(json_data::json->> 't' as int)), 2) as t_out, 
                                             round(avg(0.1 * cast(json_data::json->> 'p' as int)), 1) as p
                                     from sensors
