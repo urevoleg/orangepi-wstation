@@ -30,7 +30,7 @@ class HomeView(AdminIndexView):
         with app.app_context():
             with db.engine.connect() as conn:
                 stmt = """with raw as (select date_trunc('minute', loaded_at) as loaded_at, 
-                                                avg(cast(json_data::json->> 'l' as int)) as l, 
+                                                avg(cast(json_data::json->> 'l' as float)) as l, 
                                                 avg(0.01 * cast(json_data::json->> 't' as int)) as t, 
                                                 round(avg(avg(0.1 * cast(json_data::json->> 'p' as int))) over(order by date_trunc('minute', loaded_at) range between '5min' preceding and current row), 2) as p
                                         from sensors
