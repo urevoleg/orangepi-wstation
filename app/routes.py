@@ -4,7 +4,7 @@ from flask import jsonify
 
 @app.route('/sensors')
 def sensors():
-    rows = db.session.query(models.Sensor.category, models.Sensor.loaded_at, models.Sensor.json_data) \
+    row = db.session.query(models.Sensor.category, models.Sensor.loaded_at, models.Sensor.json_data) \
         .order_by(models.Sensor.loaded_at.desc()) \
         .first()
-    return jsonify([{**row} for row in rows])
+    return jsonify({**row})
