@@ -7,7 +7,7 @@ def sensors():
     categories = db.session.query(models.Sensor.category).distinct()
     data = [{**db.session.query(models.Sensor.category, models.Sensor.loaded_at, models.Sensor.json_data) \
         .order_by(models.Sensor.loaded_at.desc())\
-        .filter(models.Sensor.category==category)\
+        .filter(models.Sensor.category==category.category)\
         .first()} for category in categories]
 
     return jsonify(data)
