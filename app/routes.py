@@ -6,5 +6,5 @@ from flask import jsonify
 def sensors():
     rows = db.session.query(models.Sensor.category, models.Sensor.loaded_at, models.Sensor.json_data) \
         .order_by(models.Sensor.loaded_at.desc()) \
-        .limit(10)
+        .first()
     return jsonify([{**row} for row in rows])
