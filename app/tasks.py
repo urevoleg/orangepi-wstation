@@ -32,15 +32,15 @@ def narodmon_send():
     with app.app_context():
         with db.engine.connect() as conn:
             stmt = """with out_ as (select 1 AS KEY,
-                                            round(avg(cast(json_data::json->> 'l' as float)), 0) as l, 
-                                            round(avg(0.01 * cast(json_data::json->> 't' as int)), 2) as t_out, 
-                                            round(avg(0.1 * cast(json_data::json->> 'p' as int)), 1) as p
+                                            round(avg(cast(json_data::json->> 'l' as numeric)), 0) as l, 
+                                            round(avg(0.01 * cast(json_data::json->> 't' as numeric)), 2) as t_out, 
+                                            round(avg(0.1 * cast(json_data::json->> 'p' as numeric)), 1) as p
                                     from sensors
                                     where loaded_at > now() - interval '5min'
                                     and category = 'weather-out'),
                         in_ AS (select 1 AS KEY,
-                                            round(avg(cast(json_data::json->> 'gas' as int)), 0) as gas, 
-                                            round(avg(0.01 * cast(json_data::json->> 't' as int)), 2) as t_in 
+                                            round(avg(cast(json_data::json->> 'gas' as numeric)), 0) as gas, 
+                                            round(avg(0.01 * cast(json_data::json->> 't' as numeric)), 2) as t_in 
                                     from sensors
                                     where loaded_at > now() - interval '5min'
                                     and category = 'weather-in')
