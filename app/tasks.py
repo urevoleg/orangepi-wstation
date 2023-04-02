@@ -42,7 +42,7 @@ def narodmon_send():
                                             round(avg(cast(json_data::json->> 'gas' as numeric)), 0) as gas, 
                                             round(avg(0.01 * cast(json_data::json->> 't' as numeric)), 2) as t_in 
                                     from sensors
-                                    where loaded_at > now() - interval '5min'
+                                    where loaded_at > timezone('utc-3', now()) - interval '5min'
                                     and category = 'weather-in')
                         select *
                         from out_
