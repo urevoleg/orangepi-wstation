@@ -11,3 +11,28 @@ def sensors():
         .first()} for category in categories]
 
     return jsonify(data)
+
+
+@app.route('/debug')
+def debug():
+    with db.engine.connect() as conn:
+        stmt = """with out_ as (select 1 AS KEY,
+                                        round(avg(cast(json_data::json->> 'l' as numeric)), 0) as l, 
+                                        round(avg(0.01 * cast(json_data::json->> 't' as numeric)), 2) as t_out, 
+                                        round(avg(0.1 * cast(json_data::json->> 'p' as numeric)), 1) as p
+                                from sensors
+                                where loaded_at > timezone('utc-3', now()) - interval '5min'
+                                and category = 'weather-out'),
+                    in_ AS (select 1 AS KEY,
+                                        round(avg(cast(json_data::json->> 'gas' as numeric)), 0) as gas, 
+                                        round(avg(0.01 * cast(json_data::json->> 't' as numeric)), 2) as t_in 
+                                from sensors
+                                where loaded_at > now() - interval '5min'
+                                and category = 'weather-in')
+                    select *
+                    from out_
+                    JOIN in_
+                    USING (key);"""
+        res = conn.execute(stmt)
+
+    return jsonify(res.fetchall())
