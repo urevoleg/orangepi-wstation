@@ -35,4 +35,4 @@ def debug():
                     USING (key);"""
         res = conn.execute(stmt)
 
-    return jsonify([{**row for row in res.fetchall()}])
+    return jsonify([{**row} for row in res.fetchall()])
