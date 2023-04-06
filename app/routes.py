@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 
 from app import app, db, models, forecast
 from flask import jsonify
@@ -14,7 +15,7 @@ def sensors():
 
     for res in data:
         if res['category'] == 'weather-out':
-            res['json_data'].update({'forecast': forecast.get_forecast()})
+            json.loads(res['json_data']).update({'forecast': forecast.get_forecast()})
 
     return jsonify(data)
 
