@@ -15,7 +15,6 @@ def sensors():
 
     for res in data:
         if res['category'] == 'weather-out':
-            json.loads(res['json_data']).update({'forecast': forecast.get_forecast()})
             res['forecast'] = forecast.get_forecast()
 
     return jsonify(data)
