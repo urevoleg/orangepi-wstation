@@ -1,4 +1,6 @@
-from app import app, db, models
+import datetime as dt
+
+from app import app, db, models, forecast
 from flask import jsonify
 
 
@@ -9,6 +11,10 @@ def sensors():
         .order_by(models.Sensor.loaded_at.desc())\
         .filter(models.Sensor.category==category.category)\
         .first()} for category in categories]
+
+    for res in data:
+        if 'weather-out' in res.keys():
+            res['weather-out'].update({'forecast': forecast.get_forecast()})
 
     return jsonify(data)
 

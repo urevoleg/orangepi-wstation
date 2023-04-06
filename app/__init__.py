@@ -15,7 +15,7 @@ app.config.from_object(Config)
 
 db = SQLAlchemy(app, session_options={'autocommit': False})
 
-from app import models, views, routes, tasks
+from app import models, views, routes, tasks, forecast
 
 admin = Admin(app, name='Admin', index_view=views.HomeView(), template_mode='bootstrap4')
 admin.add_view(views.SensorView(models.Sensor, db.session))
