@@ -1,7 +1,7 @@
 import datetime as dt
 import json
 
-from statistics import mean
+from statistics import mean, StatisticsError
 
 from app import app, db, models
 
@@ -54,6 +54,9 @@ def formatted_forecast(prev_p, cur_p):
 
 
 def get_forecast():
+    #TODO
+    # Если каких-то данных нет, например, текущих или час назад, то надо что-то делать
+    # например, можно взять среднее за последние 3\6\12 (по выбору) часов
     last_hour = db.session.query(models.Sensor.category, models.Sensor.loaded_at, models.Sensor.json_data) \
         .order_by(models.Sensor.loaded_at.desc()) \
         .filter(models.Sensor.category == 'weather-out') \
@@ -65,7 +68,16 @@ def get_forecast():
         .filter(models.Sensor.category == 'weather-out') \
         .filter(models.Sensor.loaded_at >= dt.datetime.now() - dt.timedelta(minutes=5))
 
-    return formatted_forecast(mean(row_handler(row) for row in last_hour), mean(row_handler(row) for row in current_hour))
+    try:
+        return formatted_forecast(mean(row_handler(row) for row in last_hour), mean(row_handler(row) for row in current_hour))
+    except StatisticsError as e:
+        return {
+            'speed': 0.0,
+            'speed_kpa': 0.0,
+            'long': "Undefined weather condition",
+            'short': 'UF',
+            'error': str(e)
+        }
 
 
 if __name__ == '__main__':
