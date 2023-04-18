@@ -55,17 +55,24 @@ def formatted_forecast(prev_p, cur_p):
 
 def get_forecast():
 
-    is_no_prev_data = db.session.query(True)\
+    is_existing_prev_data = db.session.query(True)\
         .order_by(models.Sensor.loaded_at.desc()) \
         .filter(models.Sensor.category == 'weather-out') \
         .filter(models.Sensor.loaded_at >= dt.datetime.now() - dt.timedelta(hours=1, minutes=5),
-                models.Sensor.loaded_at < dt.datetime.now() - dt.timedelta(hours=1)).first()
+                models.Sensor.loaded_at < dt.datetime.now() - dt.timedelta(hours=1)).scalar() or False
 
-    last_hour = db.session.query(models.Sensor.category, models.Sensor.loaded_at, models.Sensor.json_data) \
-        .order_by(models.Sensor.loaded_at.desc()) \
-        .filter(models.Sensor.category == 'weather-out') \
-        .filter(models.Sensor.loaded_at >= dt.datetime.now() - dt.timedelta(hours=1, minutes=5),
-                models.Sensor.loaded_at < dt.datetime.now() - dt.timedelta(hours=1))
+    if is_existing_prev_data:
+        last_hour = db.session.query(models.Sensor.category, models.Sensor.loaded_at, models.Sensor.json_data) \
+            .order_by(models.Sensor.loaded_at.desc()) \
+            .filter(models.Sensor.category == 'weather-out') \
+            .filter(models.Sensor.loaded_at >= dt.datetime.now() - dt.timedelta(hours=1, minutes=5),
+                    models.Sensor.loaded_at < dt.datetime.now() - dt.timedelta(hours=1))
+    else:
+        #  если данных час назад нет, то используется среднее за пред сутки
+        last_hour = db.session.query(models.Sensor.category, models.Sensor.loaded_at, models.Sensor.json_data) \
+            .order_by(models.Sensor.loaded_at.desc()) \
+            .filter(models.Sensor.category == 'weather-out') \
+            .filter(models.Sensor.loaded_at >= dt.datetime.now() - dt.timedelta(hours=24))
 
     current_hour = db.session.query(models.Sensor.category, models.Sensor.loaded_at, models.Sensor.json_data) \
         .order_by(models.Sensor.loaded_at.desc()) \
@@ -75,10 +82,6 @@ def get_forecast():
     try:
         return formatted_forecast(mean(row_handler(row) for row in last_hour), mean(row_handler(row) for row in current_hour))
     except StatisticsError as e:
-        app.logger.debug(is_no_prev_data)
-        #TODO baseline
-        # Если каких-то данных нет, например, текущих или час назад, то надо что-то делать
-        # например, можно взять среднее за последние 3\6\12 (по выбору) часов
         return {
             'speed': 0.0,
             'speed_kpa': 0.0,
