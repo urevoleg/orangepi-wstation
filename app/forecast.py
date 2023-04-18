@@ -68,6 +68,8 @@ def get_forecast():
     try:
         return formatted_forecast(mean(row_handler(row) for row in last_hour), mean(row_handler(row) for row in current_hour))
     except StatisticsError as e:
+        app.logger.debug(last_hour == [])
+        app.logger.debug([*last_hour])
         #TODO baseline
         # Если каких-то данных нет, например, текущих или час назад, то надо что-то делать
         # например, можно взять среднее за последние 3\6\12 (по выбору) часов
