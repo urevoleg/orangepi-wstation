@@ -12,6 +12,7 @@ plotly
 #db
 psycopg2-binary
 flask-sqlalchemy
+sqlalchemy=="1.4.47"
 
 # jobs
 rq
