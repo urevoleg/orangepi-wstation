@@ -6,6 +6,9 @@ flask_admin
 gunicorn
 python-dotenv
 
+# plot
+plotly
+
 #db
 psycopg2-binary
 flask-sqlalchemy
