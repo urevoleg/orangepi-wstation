@@ -50,7 +50,7 @@ def formatted_forecast(prev_p, cur_p, name_of_useless_data='last_hour'):
             'short': 'QF'
         }
 
-        msg.update({'useless_data': name_of_useless_data})
+    msg.update({'useless_data': name_of_useless_data})
 
     return msg
 
@@ -90,7 +90,8 @@ def get_forecast():
             'speed_kpa': 0.0,
             'long': "Undefined weather condition",
             'short': 'UF',
-            'error': str(e)
+            'error': str(e),
+            'useless_data': 'no data'
         }
 
 
