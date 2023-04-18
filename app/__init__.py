@@ -1,6 +1,5 @@
-import os
-import datetime as dt
-import json
+import logging
+from logging import StreamHandler
 
 from flask import Flask, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
@@ -12,6 +11,14 @@ from app.config import Config, SensorsConfig
 # init Flask
 app = Flask(__name__)
 app.config.from_object(Config)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger('sqlalchemy.engine')
+logger.setLevel(logging.DEBUG)
+handler = StreamHandler()
+handler.setFormatter(fmt=formatter)
+logger.addHandler(handler)
+app.logger = logger
 
 db = SQLAlchemy(app, session_options={'autocommit': False})
 
