@@ -52,7 +52,6 @@ def debug():
 def get_data(place: str='out'):
     app.logger.debug(request)
     app.logger.debug(place)
-    request_data = json.loads(request.json)
     return jsonify({
         'dt': dt.datetime.now(),
         'place': place
