@@ -48,7 +48,12 @@ def debug():
     return jsonify([{**row} for row in res.fetchall()])
 
 
-@app.route('/weather-out')
-def get_data():
+@app.route('/weather/<place: str>')
+def get_data(place: str='out'):
+    app.logger.debug(request)
+    app.logger.debug(place)
     request_data = json.loads(request.json)
-    return jsonify(request_data)
+    return jsonify({
+        'dt': dt.datetime.now(),
+        'place': place
+    })
