@@ -53,9 +53,10 @@ def debug():
 def get_data(place: str='out'):
 
     def row_handler(row):
-        return row.json_data
+        row.json_data = json.loads(row.json_data)
+        return row
 
-    data = db.session.query(models.Sensor.json_data) \
+    data = db.session.query(models.Sensor.loaded_at, models.Sensor.json_data) \
         .order_by(models.Sensor.loaded_at.desc())\
         .filter(models.Sensor.category==f"weather-{place}",
                 models.Sensor.loaded_at > parse(request.args.get('from')),
