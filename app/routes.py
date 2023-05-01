@@ -1,5 +1,6 @@
 import datetime as dt
 import json
+from dateutil.parser import parse
 
 from app import app, db, models, forecast
 from flask import jsonify, request
@@ -50,8 +51,19 @@ def debug():
 
 @app.route('/weather/<place>')
 def get_data(place: str='out'):
+
+    def row_handler(row):
+        return row.json_data
+
+    data = db.session.query(models.Sensor.json_data) \
+        .order_by(models.Sensor.loaded_at.desc())\
+        .filter(models.Sensor.category==f"weather-{place}",
+                models.Sensor.loaded_at > parse(request.args.get('from')),
+                models.Sensor.loaded_at <= parse(request.args.get('to', dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))))
+
     return jsonify({
         'dt': dt.datetime.now(),
         'place': place,
-        'request': request.args
+        'request': request.args,
+        'data': [row_handler(row) for row in data]
     })
