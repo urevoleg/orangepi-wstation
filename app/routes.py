@@ -54,5 +54,6 @@ def get_data(place: str='out'):
     app.logger.debug(place)
     return jsonify({
         'dt': dt.datetime.now(),
-        'place': place
+        'place': place,
+        'request': request
     })
