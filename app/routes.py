@@ -53,8 +53,10 @@ def debug():
 def get_data(place: str='out'):
 
     def row_handler(row):
-        row.json_data = json.loads(row.json_data)
-        return row
+        return {
+            'loaded_at': row.loaded_at,
+            'json_data': json.loads(row.json_data)
+        }
 
     data = db.session.query(models.Sensor.loaded_at, models.Sensor.json_data) \
         .order_by(models.Sensor.loaded_at.desc())\
