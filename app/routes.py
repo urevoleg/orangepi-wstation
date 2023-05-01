@@ -59,7 +59,7 @@ def get_data(place: str='out'):
         }
 
     data = db.session.query(models.Sensor.loaded_at, models.Sensor.json_data) \
-        .order_by(models.Sensor.loaded_at.desc())\
+        .order_by(models.Sensor.loaded_at.asc())\
         .filter(models.Sensor.category==f"weather-{place}",
                 models.Sensor.loaded_at > parse(request.args.get('from')),
                 models.Sensor.loaded_at <= parse(request.args.get('to', dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))))
