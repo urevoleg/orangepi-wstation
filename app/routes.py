@@ -2,7 +2,7 @@ import datetime as dt
 import json
 
 from app import app, db, models, forecast
-from flask import jsonify
+from flask import jsonify, request
 
 
 @app.route('/sensors')
@@ -46,3 +46,9 @@ def debug():
         res = conn.execute(stmt)
 
     return jsonify([{**row} for row in res.fetchall()])
+
+
+@app.route('/weather-out')
+def get_data():
+    request_data = json.loads(request.json)
+    return jsonify(request_data)
