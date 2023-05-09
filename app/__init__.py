@@ -14,7 +14,7 @@ app.config.from_object(Config)
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('sqlalchemy.engine')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 handler = StreamHandler()
 handler.setFormatter(fmt=formatter)
 logger.addHandler(handler)
