@@ -13,11 +13,16 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger('sqlalchemy.engine')
-logger.setLevel(logging.DEBUG)
+logger_sqla = logging.getLogger('sqlalchemy.engine')
+logger_sqla.setLevel(logging.DEBUG)
 handler = StreamHandler()
 handler.setFormatter(fmt=formatter)
+logger_sqla.addHandler(handler)
+
+logger = logging.getLogger('wstation')
+logger.setLevel(logging.DEBUG)
 logger.addHandler(handler)
+
 app.logger = logger
 
 db = SQLAlchemy(app, session_options={'autocommit': False})
