@@ -63,7 +63,7 @@ def get_forecast():
         .order_by(models.Sensor.loaded_at.desc()) \
         .filter(models.Sensor.category == 'weather-out') \
         .filter(models.Sensor.loaded_at >= dt.datetime.now() - dt.timedelta(hours=1, minutes=5),
-                models.Sensor.loaded_at < dt.datetime.now() - dt.timedelta(hours=1)) or False
+                models.Sensor.loaded_at < dt.datetime.now() - dt.timedelta(hours=1)).scalar() or False
 
     app.logger.debug(("is_existing_prev_data", is_existing_prev_data))
 
