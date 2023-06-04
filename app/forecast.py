@@ -60,7 +60,6 @@ def formatted_forecast(prev_p, cur_p, name_of_useless_data='last_hour'):
 def get_forecast():
     name_of_useless_data = 'last_hour'
     is_existing_prev_data = db.session.query(models.Sensor.id)\
-        .order_by(models.Sensor.loaded_at.desc()) \
         .filter(models.Sensor.category == 'weather-out') \
         .filter(models.Sensor.loaded_at >= dt.datetime.now() - dt.timedelta(hours=1, minutes=5),
                 models.Sensor.loaded_at < dt.datetime.now() - dt.timedelta(hours=1)).count() or False
