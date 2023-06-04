@@ -43,4 +43,5 @@ if __name__ == '__main__':
 
     # use_reloader=False - чтобы scheduler не выполнял дважды job
     # https://stackoverflow.com/questions/14874782/apscheduler-in-flask-executes-twice
+    # https://github.com/viniciuschiele/flask-apscheduler/issues/139
     app.run(host='0.0.0.0', use_reloader=False, port=5000, debug=Config.DEBUG)

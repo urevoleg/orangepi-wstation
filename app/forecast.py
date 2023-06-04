@@ -65,12 +65,17 @@ def get_forecast():
         .filter(models.Sensor.loaded_at >= dt.datetime.now() - dt.timedelta(hours=1, minutes=5),
                 models.Sensor.loaded_at < dt.datetime.now() - dt.timedelta(hours=1)) or False
 
+    app.logger.debug(("is_existing_prev_data", is_existing_prev_data))
+
     if is_existing_prev_data:
         last_hour = db.session.query(models.Sensor.category, models.Sensor.loaded_at, models.Sensor.json_data) \
             .order_by(models.Sensor.loaded_at.desc()) \
             .filter(models.Sensor.category == 'weather-out') \
             .filter(models.Sensor.loaded_at >= dt.datetime.now() - dt.timedelta(hours=1, minutes=5),
                     models.Sensor.loaded_at < dt.datetime.now() - dt.timedelta(hours=1))
+
+        app.logger.debug(("last_hour", last_hour))
+
     else:
         #  если данных час назад нет, то используется среднее за пред сутки
         name_of_useless_data = 'last_24hours'
@@ -79,10 +84,14 @@ def get_forecast():
             .filter(models.Sensor.category == 'weather-out') \
             .filter(models.Sensor.loaded_at >= dt.datetime.now() - dt.timedelta(hours=24))
 
+        app.logger.debug((name_of_useless_data, last_hour))
+
     current_hour = db.session.query(models.Sensor.category, models.Sensor.loaded_at, models.Sensor.json_data) \
         .order_by(models.Sensor.loaded_at.desc()) \
         .filter(models.Sensor.category == 'weather-out') \
         .filter(models.Sensor.loaded_at >= dt.datetime.now() - dt.timedelta(minutes=5))
+
+    app.logger.debug(("current_hour", current_hour))
 
     try:
         return formatted_forecast(mean(row_handler(row) for row in last_hour), mean(row_handler(row) for row in current_hour),
