@@ -26,6 +26,6 @@ class SensorsConfig:
     @staticmethod
     def list():
         return [
-            {'host': '192.168.55.27', 'port': 80, 'path': 'sensors'},
-            {'host': '192.168.55.124', 'port': 80, 'path': 'sensors'}
+            {'host': '192.168.55.197', 'port': 80, 'path': 'sensors', 'place': 'in-1', 'description': 'Рабочий стол в спальне'},
+            {'host': '192.168.55.199', 'port': 80, 'path': 'sensors', 'place': 'out-1', 'description': 'Балкон, улица'}
         ]
