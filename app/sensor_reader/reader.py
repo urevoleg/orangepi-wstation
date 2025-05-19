@@ -3,7 +3,7 @@ import requests
 
 
 class SensorReader:
-    def __init__(self, host, port, path):
+    def __init__(self, host, port, path, **kwargs):
         self.host = host
         self.port = port
         self.path = path
