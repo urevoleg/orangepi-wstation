@@ -4,6 +4,7 @@ import requests
 import socket
 
 from typing import Dict
+import logging
 
 logging.basicConfig(level=logging.DEBUG,
                 format="⏰ %(asctime)s - 💎 %(levelname)s - %(filename)s - %(funcName)s:%(lineno)s - 🧾 %(message)s")

@@ -11,6 +11,7 @@ from .narodmon_sender.sender import Sender
 from app import app, db
 from app import models, SensorsConfig
 
+import logging
 logging.basicConfig(level=logging.DEBUG,
                 format="⏰ %(asctime)s - 💎 %(levelname)s - %(filename)s - %(funcName)s:%(lineno)s - 🧾 %(message)s")
 logger = logging.getLogger(__name__)
