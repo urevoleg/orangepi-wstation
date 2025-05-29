@@ -5,6 +5,11 @@ import socket
 
 from typing import Dict
 
+logging.basicConfig(level=logging.DEBUG,
+                format="⏰ %(asctime)s - 💎 %(levelname)s - %(filename)s - %(funcName)s:%(lineno)s - 🧾 %(message)s")
+logger = logging.getLogger(__name__)
+
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -14,6 +19,7 @@ class Sender:
         self.host = host
         self.port = port
         self.post_uri = post_uri
+        logger.info('Successfully created NarodmonSender!')
 
     def send(self, data:Dict={}):
         headers = {
@@ -21,6 +27,7 @@ class Sender:
             'Content-Type': 'application/x-www-form-urlencoded',
             'Host': 'narodmon.ru'
         }
+        logger.info(f'Start post request')
         response = requests.post(url=self.post_uri, data=data, headers=headers)
         response.raise_for_status()
         return response

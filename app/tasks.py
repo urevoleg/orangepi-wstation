@@ -3,12 +3,13 @@ import os
 
 from flask_apscheduler import APScheduler
 
+import sqlparse
+
 from .sensor_reader.reader import SensorReader
 from .narodmon_sender.sender import Sender
 
 from app import app, db
 from app import models, SensorsConfig
-
 
 logging.basicConfig(level=logging.DEBUG,
                 format="⏰ %(asctime)s - 💎 %(levelname)s - %(filename)s - %(funcName)s:%(lineno)s - 🧾 %(message)s")
@@ -56,6 +57,7 @@ def narodmon_send():
                         from out_
                         JOIN in_
                         USING (key);"""
+            logger.info(f'Sql query: {sqlparse.format(stmt, keyword_case="lower")}')
             res = conn.execute(stmt)
 
             data = {'ID': os.getenv('NARODMON_DEVICE_MAC')}
@@ -68,6 +70,8 @@ def narodmon_send():
                             port=os.getenv('NARODMON_PORT'),
                             post_uri=os.getenv('NARODMON_POST_URI'))
             response = sender.send(data=data)
+            if response.status_code == 200:
+                logger.info('Response is successfully!')
             app.logger.debug((response, response.headers))
 
 
