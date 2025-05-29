@@ -10,21 +10,29 @@ from app import app, db
 from app import models, SensorsConfig
 
 
+logging.basicConfig(level=logging.DEBUG,
+                format="⏰ %(asctime)s - 💎 %(levelname)s - %(filename)s - %(funcName)s:%(lineno)s - 🧾 %(message)s")
+logger = logging.getLogger(__name__)
+
+
 scheduler = APScheduler(app=app)
 
 
 @scheduler.task(trigger='interval', id="read_sensor", seconds=30)
 def read_sensor():
     for sensor_creds in SensorsConfig.list():
-        from_sensor = SensorReader(**sensor_creds).read()
-        obj = models.Sensor(
-            category=from_sensor.get('name'),
-            json_data=json.dumps(from_sensor.get('data'))
-        )
-        with app.app_context():
-            db.session.add(obj)
-            db.session.commit()
-            app.logger.debug(obj)
+        try:
+            from_sensor = SensorReader(**sensor_creds).read()
+            obj = models.Sensor(
+                category=from_sensor.get('name'),
+                json_data=json.dumps(from_sensor.get('data'))
+            )
+            with app.app_context():
+                db.session.add(obj)
+                db.session.commit()
+                app.logger.debug(obj)
+        except Exception as e:
+            logger.error(f'Error: {e} occured while executing for sensor: {sensor_creds}')
 
 
 @scheduler.task(trigger='interval', id="narodmon_send", minutes=5)
