@@ -42,4 +42,4 @@ class Sender:
             'l': f"{os.getenv('NARODMON_DEVICE_MAC')}04",
             't_in': f"{os.getenv('NARODMON_DEVICE_MAC')}05",
             'gas': f"{os.getenv('NARODMON_DEVICE_MAC')}09"
-        }.get(name)
+        }.get(name, "unknown")

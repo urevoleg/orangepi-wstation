@@ -63,8 +63,10 @@ def narodmon_send():
 
             data = {'ID': os.getenv('NARODMON_DEVICE_MAC')}
             for row in res.fetchall():
+                logger.info(f'Row: {row}')
                 for k, v in row.items():
                     if k != 'key':
+                        logger.info(f'k: {k}, v: {v}')
                         data[Sender._name_sensor_mappings(k)] = float(str(v))
             app.logger.debug(data)
             sender = Sender(host=os.getenv('NARODMON_HOST'),
